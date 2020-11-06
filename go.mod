@@ -8,4 +8,5 @@ require (
 	github.com/go-pg/pg/v10 v10.6.1
 	github.com/gofiber/fiber/v2 v2.1.4
 	github.com/gofiber/jwt/v2 v2.0.1
+	github.com/golang/protobuf v1.4.3
 )
