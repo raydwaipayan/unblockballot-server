@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/raydwaipayan/unblockballot-server/types"
+	models "github.com/raydwaipayan/unblockballot-server/models"
 )
 
 //Register user registration handler
@@ -36,7 +37,8 @@ func Login(c *fiber.Ctx) error {
 	claims["lastname"] = u.LastName
 	claims["admin"] = u.Admin
 	claims["exp"] = time.Now().Add(time.Hour).Unix()
-
+	log.Println(models.DBConfigURL)
+	u.Create(models.DBConfigURL)
 	t, err := token.SignedString([]byte("secret"))
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)

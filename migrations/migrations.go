@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-
+	"context"
 	"github.com/go-pg/migrations/v8"
 	"github.com/go-pg/pg/v10"
 )
@@ -25,8 +25,14 @@ func main() {
 
 	db := pg.Connect(&pg.Options{
 		User:     "postgres",
-		Database: "unblockballot",
+		Password: "password",
+		Database: "testdb",
 	})
+	ctx := context.Background()
+
+	if err := db.Ping(ctx); err != nil {
+		panic(err)
+	}
 
 	oldVersion, newVersion, err := migrations.Run(db, flag.Args()...)
 	if err != nil {
