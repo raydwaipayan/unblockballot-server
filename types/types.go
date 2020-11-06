@@ -7,3 +7,13 @@ type User struct {
 	LastName  string `json:"lastname" form:"lastname"`
 	Password  string `json:"password" form:"password"`
 }
+
+// Poll poll object
+type Poll struct {
+	Questions string   `json:"questions" form:"questions"`
+	Options   []string `json:"options" form:"options"`
+	OpensAt   string   `json:"opensAt" form:"opensAt"`
+	ClosesAt  string   `json:"closesAt" form:"closesAt"`
+	OrgName   string   `json:"orgName" form:"orgName"`
+	OrgImg    []byte   `json:"orgImg" form:"orgImg"`
+}
