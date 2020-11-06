@@ -52,3 +52,43 @@ func (s *SmartContract) NewElection(ctx contractapi.TransactionContextInterface,
 
 	return nil
 }
+
+//GetCandidate retrieve data for a candidate
+func (s *SmartContract) GetCandidate(ctx contractapi.TransactionContextInterface,
+	candidateID string) (Candidate, error) {
+
+	bytes, err := ctx.GetStub().GetState(candidateID)
+	candidate := Candidate{}
+
+	if err != nil {
+		return candidate, err
+	}
+
+	err = json.Unmarshal(bytes, &candidate)
+
+	return candidate, err
+}
+
+//GetAllCandidates retrieve fata for all candidates for an election
+func (s *SmartContract) GetAllCandidates(ctx contractapi.TransactionContextInterface,
+	electionID string) ([]Candidate, error) {
+
+	candidates := make([]Candidate, 0)
+	bytes, err := ctx.GetStub().GetState(electionID)
+	if err != nil {
+		return candidates, err
+	}
+
+	e := Election{}
+	err = json.Unmarshal(bytes, &e)
+	if err != nil {
+		return candidates, err
+	}
+
+	for _, val := range e.Candidates {
+		c, _ := s.GetCandidate(ctx, val)
+		candidates = append(candidates, c)
+	}
+
+	return candidates, nil
+}
