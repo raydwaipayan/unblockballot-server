@@ -15,5 +15,5 @@ type Poll struct {
 	OpensAt   string   `json:"opensAt" form:"opensAt"`
 	ClosesAt  string   `json:"closesAt" form:"closesAt"`
 	OrgName   string   `json:"orgName" form:"orgName"`
-	OrgImg    string   `json:"orgImg" form:"orgImg"`
+	OrgImg    []byte   `json:"orgImg" form:"orgImg"`
 }
