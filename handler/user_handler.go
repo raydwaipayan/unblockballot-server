@@ -4,6 +4,7 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	
 	"github.com/gofiber/fiber/v2"
 	"github.com/raydwaipayan/unblockballot-server/types"
 )
@@ -39,4 +40,9 @@ func Login(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	return c.JSON(fiber.Map{"token": t})
+}
+
+//PollSubmit user poll submission
+func PollSubmit(c *fiber.Ctx) error {
+	return c.JSON(fiber.Map{"message": "test"})
 }
