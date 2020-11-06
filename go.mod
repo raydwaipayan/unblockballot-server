@@ -8,4 +8,6 @@ require (
 	github.com/go-pg/pg/v10 v10.6.1
 	github.com/gofiber/fiber/v2 v2.1.4
 	github.com/gofiber/jwt/v2 v2.0.1
+	github.com/hyperledger/fabric-chaincode-go v0.0.0-20200728190242-9b3ae92d8664
+	github.com/hyperledger/fabric-contract-api-go v1.1.1
 )
