@@ -25,7 +25,7 @@ func main() {
 
 	db := pg.Connect(&pg.Options{
 		User:     "postgres",
-		Database: "db",
+		Database: "unblockballot",
 	})
 
 	oldVersion, newVersion, err := migrations.Run(db, flag.Args()...)

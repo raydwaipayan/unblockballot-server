@@ -19,9 +19,9 @@ func init() {
 			id serial PRIMARY KEY,
 			first_name varchar(30),
 			last_name varchar(30),
-			email varchar(50),
-			password_hash varchar,
-			role integer,
+			email varchar(50) UNIQUE NOT NULL,
+			password_hash varchar NOT NULL,
+			role integer NOT NULL,
 			createdAt timestamp
 		);
 		CREATE TABLE subscriptions (
