@@ -4,7 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	router "github.com/raydwaipayan/unblockballot-server/server/router"
+	router "github.com/raydwaipayan/unblockballot-server/router"
 )
 
 func main() {
