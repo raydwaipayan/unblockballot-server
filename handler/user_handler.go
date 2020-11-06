@@ -1,10 +1,11 @@
 package handler
 
 import (
+	"log"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/raydwaipayan/unblockballot-server/types"
 )
@@ -33,6 +34,7 @@ func Login(c *fiber.Ctx) error {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["firstname"] = u.FirstName
 	claims["lastname"] = u.LastName
+	claims["admin"] = u.Admin
 	claims["exp"] = time.Now().Add(time.Hour).Unix()
 
 	t, err := token.SignedString([]byte("secret"))
@@ -44,5 +46,8 @@ func Login(c *fiber.Ctx) error {
 
 //PollSubmit user poll submission
 func PollSubmit(c *fiber.Ctx) error {
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	log.Println(claims["firstname"])
 	return c.JSON(fiber.Map{"message": "test"})
 }

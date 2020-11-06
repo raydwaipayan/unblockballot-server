@@ -19,12 +19,12 @@ func SetupRoutes(app *fiber.App) {
 	
 	user.Use(jwtware.New(jwtware.Config{
 		SigningMethod: "HS256",
-		SigningKey:    "test",
+		SigningKey:    []byte("secret"),
 	}))
 
 	poll.Use(jwtware.New(jwtware.Config{
 		SigningMethod: "HS256",
-		SigningKey:    "test",
+		SigningKey:    []byte("secret"),
 	}))
 
 
