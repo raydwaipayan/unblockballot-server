@@ -8,6 +8,7 @@ import (
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	types "github.com/raydwaipayan/unblockballot-server/types"
 )
 
 //ServerConfig contains endpoint info
@@ -21,48 +22,28 @@ type SmartContract struct {
 	contractapi.Contract
 }
 
-//Election contains election details
-type Election struct {
-	ID         string `json:"id"`
-	Candidates []string
-	Active     bool
-}
-
-//Candidate contains the candidature information
-type Candidate struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	ElectionID string
-	Votes      uint64
-}
-
-//Voter structure for storing votes
-type Voter struct {
-	ID          string `json:"id"`
-	CandidateID string `json:"candidateID"`
-	Time        string `json:"time"`
-}
-
 //NewElection adds a new election to the ledger
 func (s *SmartContract) NewElection(ctx contractapi.TransactionContextInterface,
-	electionID string, candidateJSON string) error {
+	electionID string, candidateID []string, candidateName []string) error {
 
-	e := &Election{
+	e := &types.Election{
 		ID:         electionID,
 		Candidates: make([]string, 0),
 		Active:     true,
 	}
 
-	var candidates []Candidate
-	json.Unmarshal([]byte(candidateJSON), &candidates)
+	for idx := range candidateID {
+		e.Candidates = append(e.Candidates, candidateID[idx])
 
-	for _, val := range candidates {
-		e.Candidates = append(e.Candidates, val.ID)
-		val.Votes = 0
-		val.ElectionID = e.ID
+		c := &types.Candidate{
+			ID:         candidateID[idx],
+			Name:       candidateName[idx],
+			ElectionID: electionID,
+			Votes:      0,
+		}
 
-		bytes, _ := json.Marshal(val)
-		if err := ctx.GetStub().PutState(val.ID, bytes); err != nil {
+		bytes, _ := json.Marshal(c)
+		if err := ctx.GetStub().PutState(c.ID, bytes); err != nil {
 			return err
 		}
 	}
@@ -77,10 +58,10 @@ func (s *SmartContract) NewElection(ctx contractapi.TransactionContextInterface,
 
 //GetCandidate retrieve data for a candidate
 func (s *SmartContract) GetCandidate(ctx contractapi.TransactionContextInterface,
-	candidateID string) (Candidate, error) {
+	candidateID string) (types.Candidate, error) {
 
 	bytes, err := ctx.GetStub().GetState(candidateID)
-	candidate := Candidate{}
+	candidate := types.Candidate{}
 
 	if err != nil {
 		return candidate, err
@@ -93,22 +74,22 @@ func (s *SmartContract) GetCandidate(ctx contractapi.TransactionContextInterface
 
 //GetAllCandidates retrieve fata for all candidates for an election
 func (s *SmartContract) GetAllCandidates(ctx contractapi.TransactionContextInterface,
-	electionID string) ([]Candidate, error) {
+	electionID string) ([]types.Candidate, error) {
 
-	candidates := make([]Candidate, 0)
+	candidates := make([]types.Candidate, 0)
 	bytes, err := ctx.GetStub().GetState(electionID)
 	if err != nil {
 		return candidates, err
 	}
 
-	e := Election{}
+	e := types.Election{}
 	err = json.Unmarshal(bytes, &e)
 	if err != nil {
 		return candidates, err
 	}
 
 	for _, val := range e.Candidates {
-		c, _ := s.GetCandidate(ctx, val)
+		c, _ := s.GetCandidate(ctx, val.ID)
 		candidates = append(candidates, c)
 	}
 
@@ -117,13 +98,12 @@ func (s *SmartContract) GetAllCandidates(ctx contractapi.TransactionContextInter
 
 //AddVote Add a new vote to ledger
 func (s *SmartContract) AddVote(ctx contractapi.TransactionContextInterface,
-	voterJSON string) error {
+	voterID string, candidateID string, time string) error {
 
-	v := Voter{}
-	err := json.Unmarshal([]byte(voterJSON), &v)
-
-	if err != nil {
-		return err
+	v := types.Vote{
+		VoterID:     voterID,
+		CandidateID: candidateID,
+		Time:        time,
 	}
 
 	bytes, err := ctx.GetStub().GetState(v.CandidateID)
@@ -131,13 +111,13 @@ func (s *SmartContract) AddVote(ctx contractapi.TransactionContextInterface,
 		return errors.New("Candidate not found")
 	}
 
-	candidate := Candidate{}
+	candidate := types.Candidate{}
 	err = json.Unmarshal(bytes, &candidate)
 	if err != nil {
 		return err
 	}
 
-	if _, err := ctx.GetStub().GetState(v.ID); err == nil {
+	if _, err := ctx.GetStub().GetState(v.VoterID); err == nil {
 		return errors.New("User has already voted")
 	}
 
