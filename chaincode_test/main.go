@@ -58,10 +58,19 @@ func main() {
 	contract := network.GetContract("ballotchain")
 
 	candidate := []types.Candidate{}
-	candidate = append(candidate, types.Candidate{ID: "12", Name: "Hi"})
+	candidate1 := types.Candidate{
+		ID:   "e1c1",
+		Name: "Hi",
+	}
+	candidate2 := types.Candidate{
+		ID:   "e1c2",
+		Name: "Hi2",
+	}
+	candidate = append(candidate, candidate1)
+	candidate = append(candidate, candidate2)
 
 	bytes, _ := json.Marshal(candidate)
-	result, err := contract.EvaluateTransaction("newElection", "1", string(bytes))
+	result, err := contract.EvaluateTransaction("newElection", "e1", string(bytes))
 
 	if err != nil {
 		fmt.Printf("Failed to evaluate transaction: %s\n", err)
@@ -69,6 +78,13 @@ func main() {
 	}
 	fmt.Println(string(result))
 
+	result, err = contract.EvaluateTransaction("getElection", "e1")
+	if err != nil {
+		fmt.Printf("Failed to evaluate transaction: %s\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Println(string(result))
 }
 
 func populateWallet(wallet *gateway.Wallet) error {

@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 
-	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	types "github.com/raydwaipayan/unblockballot-server/types"
 )
@@ -62,6 +60,22 @@ func (s *SmartContract) NewElection(ctx contractapi.TransactionContextInterface,
 	return nil
 }
 
+//GetElection retrieves an election from the ledger
+func (s *SmartContract) GetElection(ctx contractapi.TransactionContextInterface,
+	electionID string) (types.Election, error) {
+
+	e := types.Election{}
+
+	result, err := ctx.GetStub().GetState(electionID)
+
+	if err != nil {
+		return e, errors.New("Election not found")
+	}
+
+	err = json.Unmarshal(result, &e)
+	return e, err
+}
+
 //GetCandidate retrieve data for a candidate
 func (s *SmartContract) GetCandidate(ctx contractapi.TransactionContextInterface,
 	candidateID string) (types.Candidate, error) {
@@ -70,12 +84,12 @@ func (s *SmartContract) GetCandidate(ctx contractapi.TransactionContextInterface
 	candidate := types.Candidate{}
 
 	if err != nil {
-		return candidate, err
+		return candidate, errors.New("Candidate not found")
 	}
 
 	err = json.Unmarshal(bytes, &candidate)
 
-	return candidate, err
+	return candidate, errors.New("Error parsing stored data: " + string(bytes))
 }
 
 //GetAllCandidates retrieve fata for all candidates for an election
@@ -140,28 +154,15 @@ func (s *SmartContract) AddVote(ctx contractapi.TransactionContextInterface,
 }
 
 func main() {
-	config := ServerConfig{
-		CCID:    os.Getenv("CHAINCODE_ID"),
-		Address: os.Getenv("CHAINCODE_SERVER_ADDRESS"),
-	}
 
 	chaincode, err := contractapi.NewChaincode(new(SmartContract))
 
 	if err != nil {
-		fmt.Printf("Error create fabcar chaincode: %s", err.Error())
+		fmt.Printf("Error create ballotchain chaincode: %s", err.Error())
 		return
 	}
 
-	server := &shim.ChaincodeServer{
-		CCID:    config.CCID,
-		Address: config.Address,
-		CC:      chaincode,
-		TLSProps: shim.TLSProperties{
-			Disabled: true,
-		},
-	}
-
-	if err := server.Start(); err != nil {
-		fmt.Printf("Error starting unblockballot chaincode: %s", err.Error())
+	if err := chaincode.Start(); err != nil {
+		fmt.Printf("Error starting ballotchain chaincode: %s", err.Error())
 	}
 }

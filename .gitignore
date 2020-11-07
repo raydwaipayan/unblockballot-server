@@ -1,2 +1,3 @@
 chaincode/vendor
-chaincode_test
+chaincode_test/keystore
+chaincode_test/wallet
