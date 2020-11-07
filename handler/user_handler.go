@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"log"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/raydwaipayan/unblockballot-server/types"
+	models "github.com/raydwaipayan/unblockballot-server/models"
 )
 
 //Register user registration handler
@@ -33,8 +35,10 @@ func Login(c *fiber.Ctx) error {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["firstname"] = u.FirstName
 	claims["lastname"] = u.LastName
+	claims["admin"] = u.Admin
 	claims["exp"] = time.Now().Add(time.Hour).Unix()
-
+	log.Println(models.DBConfigURL)
+	u.Create(models.DBConfigURL)
 	t, err := token.SignedString([]byte("secret"))
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
@@ -44,5 +48,8 @@ func Login(c *fiber.Ctx) error {
 
 //PollSubmit user poll submission
 func PollSubmit(c *fiber.Ctx) error {
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	log.Println(claims["firstname"])
 	return c.JSON(fiber.Map{"message": "test"})
 }

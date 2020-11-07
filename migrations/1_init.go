@@ -7,6 +7,7 @@ import (
 )
 
 func init() {
+	fmt.Println("init function")
 	migrations.MustRegisterTx(func(db migrations.DB) error {
 		fmt.Println("creating tables...")
 		_, err := db.Exec(`

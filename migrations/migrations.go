@@ -4,9 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"os"
-
+	"context"
 	"github.com/go-pg/migrations/v8"
-	"github.com/go-pg/pg/v10"
+	pg "github.com/go-pg/pg/v10"
 )
 
 const usageText = `This program runs command on the db. Supported commands are:
@@ -24,9 +24,16 @@ func main() {
 	flag.Parse()
 
 	db := pg.Connect(&pg.Options{
+		Addr: "0.0.0.0:5432",
 		User:     "postgres",
-		Database: "unblockballot",
+		Password: "password",
+		Database: "postgres",
 	})
+	ctx := context.Background()
+
+	if err := db.Ping(ctx); err != nil {
+		panic(err)
+	}
 
 	oldVersion, newVersion, err := migrations.Run(db, flag.Args()...)
 	if err != nil {

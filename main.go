@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	models "github.com/raydwaipayan/unblockballot-server/models"
 	router "github.com/raydwaipayan/unblockballot-server/router"
 )
 
@@ -17,5 +18,6 @@ func main() {
 	}))
 
 	router.SetupRoutes(app)
+	models.InitDb()
 	app.Listen(":3000")
 }
