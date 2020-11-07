@@ -13,16 +13,22 @@ import (
 func PollCreate(c *fiber.Ctx) error {
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
+	log.Println(claims["role"])
 	if claims["role"] != float64(1) {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	poll := new(types.Poll)
+	poll := new(types.PollBody)
+
+	// Checking if the org already exists
 
 	if err := c.BodyParser(poll); err != nil {
 		log.Println(err)
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
-	poll.PollCreate(models.DBConfigURL)
+	if err:= poll.CreatePoll(models.DBConfigURL); err !=nil {
+		log.Println(err)
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
 	return c.JSON(fiber.Map{"message": "poll created successfully !", "poll": poll})
 }

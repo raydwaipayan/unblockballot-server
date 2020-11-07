@@ -30,7 +30,7 @@ func SetupRoutes(app *fiber.App) {
 
 	// restricted user routes
 	user.Post("/update", handler.Update)
-	poll.Post("/", handler.PollSubmit)
+	// poll.Post("/", handler.PollSubmit)
 
 	// restricted admin routes
 	poll.Post("/create", handler.PollCreate)

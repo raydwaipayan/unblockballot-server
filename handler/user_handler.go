@@ -29,6 +29,7 @@ func Register(c *fiber.Ctx) error {
 	}
 	u.Password = string(hashedPassword)
 
+	log.Println(u.Role)
 	if err:= u.Create(models.DBConfigURL); err!=nil {
 		log.Println(err)
 		return c.SendStatus(fiber.StatusBadRequest)
@@ -49,11 +50,11 @@ func Login(c *fiber.Ctx) error {
 	if !doesExist {
 		return c.SendStatus(fiber.StatusForbidden)
 	}
-
+	log.Println(u)
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
-	claims["email"] = u.FirstName
+	claims["email"] = u.Email
 	claims["role"] = u.Role
 	claims["exp"] = time.Now().Add(time.Hour).Unix()
 	
@@ -82,9 +83,9 @@ func Update(c *fiber.Ctx) error {
 }
 
 //PollSubmit user poll submission
-func PollSubmit(c *fiber.Ctx) error {
-	user := c.Locals("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	log.Println(claims["email"])
-	return c.JSON(fiber.Map{"message": "test"})
-}
+// func PollSubmit(c *fiber.Ctx) error {
+// 	user := c.Locals("user").(*jwt.Token)
+// 	claims := user.Claims.(jwt.MapClaims)
+// 	// log.Println(claims["email"])
+// 	return c.JSON(fiber.Map{"message": "test"})
+// }

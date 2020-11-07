@@ -25,6 +25,9 @@ func (u *User) CheckUserExists(db *pg.DB) (bool, error) {
 	err := db.Model(user).Table("users").Where("users.email = ?", u.Email).Limit(1).Select()
 	encryptionErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(u.Password))
 	if encryptionErr == nil {
+		u.Role=user.Role
+		u.FirstName=user.FirstName
+		u.LastName=user.LastName
 		return true, nil
 	}
 	if err != nil {
@@ -39,8 +42,12 @@ func (u *User) Delete(db *pg.DB) error {
 	return err
 }
 
-//PollCreate create a new poll
-func (p *Poll) PollCreate(db *pg.DB) error {
-	_, err := db.Model(p).Insert()
+//CreatePoll create a new poll
+func (p *PollBody) CreatePoll(db *pg.DB) error {
+	org := new(Organization)
+	org.OrgName = p.OrgName
+	count, err := db.Model(org).Table("organization").Where("organization.org_name = ?", p.OrgName).Count()
+	log.Println(count)
+	// _, err = db.Model(p).Insert()
 	return err
 }
