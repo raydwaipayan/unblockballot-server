@@ -6,10 +6,9 @@ membersrvc:
 
 
 vp0:
-  image: hyperledger/fabric-peer
+  image: hyperledger/fabric-peer:2.0
   ports:
     - "7050:7050" # Default REST API: https://github.com/hyperledger/fabric/blob/master/peer/core.yaml
-    - "7051:7051"
     - "7053:7053"
   environment:
     - CORE_PEER_ADDRESSAUTODETECT=true

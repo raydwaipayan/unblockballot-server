@@ -1,10 +1,11 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
-	"context"
+
 	"github.com/go-pg/migrations/v8"
 	pg "github.com/go-pg/pg/v10"
 )
@@ -24,9 +25,9 @@ func main() {
 	flag.Parse()
 
 	db := pg.Connect(&pg.Options{
-		Addr: "0.0.0.0:5432",
+		Addr:     "0.0.0.0:5432",
 		User:     "postgres",
-		Password: "password",
+		Password: "iLe8dooshahrokoo",
 		Database: "postgres",
 	})
 	ctx := context.Background()
