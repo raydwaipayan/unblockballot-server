@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -9,7 +10,7 @@ import (
 
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
-	cc "github.com/raydwaipayan/unblockballot-server/chaincode"
+	"github.com/raydwaipayan/unblockballot-server/types"
 )
 
 func main() {
@@ -56,13 +57,12 @@ func main() {
 
 	contract := network.GetContract("ballotchain")
 
-	candidates := make([]cc.Candidate,0)
-	candidates = append(&Candidates{
-		ID: "asdas",
-		Name: "Test"
-	})
-	str, err := json.Marshal(candidates)
-	result, err := contract.EvaluateTransaction("newElection", "12", str)
+	candidate := []types.Candidate{}
+	candidate = append(candidate, types.Candidate{ID: "12", Name: "Hi"})
+
+	bytes, _ := json.Marshal(candidate)
+	result, err := contract.EvaluateTransaction("newElection", "1", string(bytes))
+
 	if err != nil {
 		fmt.Printf("Failed to evaluate transaction: %s\n", err)
 		os.Exit(1)

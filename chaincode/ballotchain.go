@@ -22,9 +22,18 @@ type SmartContract struct {
 	contractapi.Contract
 }
 
+// InitLedger adds a base state
+func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
+	e := types.Election{
+		ID: "1",
+	}
+	bytes, _ := json.Marshal(e)
+	return ctx.GetStub().PutState(e.ID, bytes)
+}
+
 //NewElection adds a new election to the ledger
 func (s *SmartContract) NewElection(ctx contractapi.TransactionContextInterface,
-	electionID string, candidateID []string, candidateName []string) error {
+	electionID string, candidateJSON string) error {
 
 	e := &types.Election{
 		ID:         electionID,
@@ -32,18 +41,15 @@ func (s *SmartContract) NewElection(ctx contractapi.TransactionContextInterface,
 		Active:     true,
 	}
 
-	for idx := range candidateID {
-		e.Candidates = append(e.Candidates, candidateID[idx])
+	var candidates []types.Candidate
+	json.Unmarshal([]byte(candidateJSON), &candidates)
 
-		c := &types.Candidate{
-			ID:         candidateID[idx],
-			Name:       candidateName[idx],
-			ElectionID: electionID,
-			Votes:      0,
-		}
-
-		bytes, _ := json.Marshal(c)
-		if err := ctx.GetStub().PutState(c.ID, bytes); err != nil {
+	for _, val := range candidates {
+		e.Candidates = append(e.Candidates, val.ID)
+		val.Votes = 0
+		val.ElectionID = e.ID
+		bytes, _ := json.Marshal(val)
+		if err := ctx.GetStub().PutState(val.ID, bytes); err != nil {
 			return err
 		}
 	}
@@ -89,7 +95,7 @@ func (s *SmartContract) GetAllCandidates(ctx contractapi.TransactionContextInter
 	}
 
 	for _, val := range e.Candidates {
-		c, _ := s.GetCandidate(ctx, val.ID)
+		c, _ := s.GetCandidate(ctx, val)
 		candidates = append(candidates, c)
 	}
 
@@ -122,7 +128,7 @@ func (s *SmartContract) AddVote(ctx contractapi.TransactionContextInterface,
 	}
 
 	bytes, _ = json.Marshal(v)
-	err = ctx.GetStub().PutState(v.ID, bytes)
+	err = ctx.GetStub().PutState(v.VoterID, bytes)
 
 	if err != nil {
 		return err
