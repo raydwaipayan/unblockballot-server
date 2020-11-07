@@ -24,7 +24,7 @@ func main() {
 	flag.Parse()
 
 	db := pg.Connect(&pg.Options{
-		Addr: "0.0.0.0:5432",
+		Addr: ":5432",
 		User:     "postgres",
 		Password: "password",
 		Database: "postgres",

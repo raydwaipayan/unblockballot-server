@@ -5,11 +5,14 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-
+	"golang.org/x/crypto/bcrypt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/raydwaipayan/unblockballot-server/types"
 	models "github.com/raydwaipayan/unblockballot-server/models"
 )
+
+var passowrdKey = []byte("pass_secret")
+
 
 //Register user registration handler
 func Register(c *fiber.Ctx) error {
@@ -18,7 +21,18 @@ func Register(c *fiber.Ctx) error {
 	if err := c.BodyParser(u); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
+	// Hashing password using bcrypt 
+	pass := []byte(u.Password)
+	hashedPassword, err := bcrypt.GenerateFromPassword(pass, bcrypt.DefaultCost)
+    if err != nil {
+        panic(err)
+	}
+	u.Password = string(hashedPassword)
 
+	if err:= u.Create(models.DBConfigURL); err!=nil {
+		log.Println(err)
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
 	return c.SendStatus(fiber.StatusOK)
 }
 
@@ -30,15 +44,20 @@ func Login(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
+	// Checking if the user exists
+	doesExist, err := u.CheckUserExists(models.DBConfigURL) 
+	if !doesExist {
+		return c.SendStatus(fiber.StatusForbidden)
+	}
+
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
-	claims["firstname"] = u.FirstName
-	claims["lastname"] = u.LastName
-	claims["admin"] = u.Admin
+	claims["email"] = u.FirstName
+	claims["role"] = u.Role
 	claims["exp"] = time.Now().Add(time.Hour).Unix()
-	log.Println(models.DBConfigURL)
-	u.Create(models.DBConfigURL)
+	
+
 	t, err := token.SignedString([]byte("secret"))
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
@@ -46,10 +65,26 @@ func Login(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"token": t})
 }
 
+// Update user data
+func Update(c *fiber.Ctx) error {
+	u := new(types.User)
+
+	if err := c.BodyParser(u); err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+
+	if err:= u.Update(models.DBConfigURL); err!=nil {
+		log.Println(err)
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+
+	return c.JSON(fiber.Map{"message": "user updated"})
+}
+
 //PollSubmit user poll submission
 func PollSubmit(c *fiber.Ctx) error {
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
-	log.Println(claims["firstname"])
+	log.Println(claims["email"])
 	return c.JSON(fiber.Map{"message": "test"})
 }
