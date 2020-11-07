@@ -6,7 +6,7 @@ import (
 	"os"
 	"context"
 	"github.com/go-pg/migrations/v8"
-	"github.com/go-pg/pg/v10"
+	pg "github.com/go-pg/pg/v10"
 )
 
 const usageText = `This program runs command on the db. Supported commands are:
@@ -24,9 +24,10 @@ func main() {
 	flag.Parse()
 
 	db := pg.Connect(&pg.Options{
+		Addr: "0.0.0.0:5432",
 		User:     "postgres",
 		Password: "password",
-		Database: "testdb",
+		Database: "postgres",
 	})
 	ctx := context.Background()
 
